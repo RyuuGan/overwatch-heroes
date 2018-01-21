@@ -103,6 +103,7 @@ export class HeroesListComponent implements OnInit, OnDestroy, AfterViewInit {
   }
 
   filterHeroes(name: string) {
+    this.checkVisible();
     return this.heroes.filter(h =>
       h.attributes.name.toLowerCase().indexOf(name.toLowerCase()) !== -1);
   }

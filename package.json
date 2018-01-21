@@ -8,7 +8,8 @@
     "build": "rimraf client/dist && webpack --progress --profile --bail",
     "start": "cd server && node run.js",
     "serverClient": "webpack-dev-server --inline --progress --port 3000",
-    "postinstall": "npm run build"
+    "postinstall": "npm run build",
+    "extractLocale": "ngx-translate-extract --input ./client/src/app --output ./client/src/assets/i18n/en.json --sort --format json"
   },
   "keywords": [
     "games",
@@ -76,5 +77,8 @@
     "webpack": "^3.10.0",
     "webpack-dev-server": "^2.11.1",
     "zone.js": "^0.8.20"
+  },
+  "devDependencies": {
+    "ngx-translate-extract": "^1.0.0"
   }
 }

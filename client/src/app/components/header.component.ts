@@ -1,12 +1,13 @@
 import { Component, NgModule, OnInit } from '@angular/core';
 import {
   MatButtonModule,
-  MatIconModule,
+  MatIconModule, MatSelectModule,
   MatToolbarModule
 } from '@angular/material';
 import { RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import conf from '../conf';
 
 @Component({
   selector: 'cc-header',
@@ -15,10 +16,18 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export class HeaderComponent implements OnInit {
 
-  constructor() {
+  locales = conf.locales;
+  currentLang = '';
+
+  constructor(private translate: TranslateService) {
+    this.currentLang = this.translate.currentLang;
   }
 
   ngOnInit(): void {
+  }
+
+  changeLocale(locale) {
+    this.translate.use(locale);
   }
 }
 
@@ -27,6 +36,7 @@ export class HeaderComponent implements OnInit {
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
+    MatSelectModule,
     TranslateModule,
     RouterModule,
     CommonModule

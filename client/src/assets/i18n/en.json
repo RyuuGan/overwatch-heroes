@@ -1,3 +1,10 @@
 {
-
+	"Close": "Close",
+	"Heroes": "Heroes",
+	"No heroes found.": "No heroes found.",
+	"Overwatch Heroes": "Overwatch Heroes",
+	"Some text about this hero": "Some text about this hero",
+	"Language": "Language",
+	"locale.en": "English",
+	"locale.ru": "Русский"
 }

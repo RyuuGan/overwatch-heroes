@@ -1,13 +1,13 @@
-<h1>Heroes</h1>
+<h1 translate>Heroes</h1>
 
 <div *ngIf="!heroes.length">
-  <span>No heroes found.</span>
+  <span translate>No heroes found.</span>
 </div>
 
 <div *ngIf="heroes.length" class="overwatch-heroes">
 
   <div *ngFor="let hero of heroes">
-    <div class="overwatch-hero">
+    <div class="overwatch-hero" (click)="openHeroSplashDialog(hero)">
       <div class="overwatch-hero__title">{{hero.attributes.name}}</div>
       <div class="overwatch-hero__portrait">
         <img [src]="hero.attributes.image_portrait"/>

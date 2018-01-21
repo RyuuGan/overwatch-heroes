@@ -1,7 +1,7 @@
 import { RouterModule, Routes } from '@angular/router';
 
 import { HeroesLayoutComponent } from './layout';
-import { HeroesListComponent } from './list';
+import { HeroesListComponent, HeroSplashDialogComponent } from './list';
 import { NgModule } from '@angular/core';
 import { SharedModule } from '../../sharedModule';
 import { HeroesResolver, HeroesService } from '../../services/heroes';
@@ -28,7 +28,8 @@ let routes: Routes = [
   ],
   declarations: [
     HeroesLayoutComponent,
-    HeroesListComponent
+    HeroesListComponent,
+    HeroSplashDialogComponent
   ],
   providers: [
     HeroesResolver,
@@ -36,6 +37,9 @@ let routes: Routes = [
   ],
   exports: [
     RouterModule
+  ],
+  entryComponents: [
+    HeroSplashDialogComponent
   ]
 })
 

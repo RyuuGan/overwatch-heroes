@@ -1,0 +1,14 @@
+<mat-toolbar color="primary">
+  <span>{{hero.attributes.name}}</span>
+</mat-toolbar>
+<mat-dialog-content [ngStyle]="{'background': backgroundImage }" class="hero-description">
+  <p translate>Some text about this hero</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <div class="flex-fill"></div>
+  <button mat-button
+          mat-dialog-close>
+    <span translate>Close</span>
+  </button>
+  <div class="flex-fill"></div>
+</mat-dialog-actions>

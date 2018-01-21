@@ -1,12 +1,11 @@
 <mat-toolbar color="primary" class="mat-elevation-z6">
-  <a routerLink="/" class="headerLink headerLinkHome">Overwatch Heroes</a>
-  <a *ngIf="!!principal"
-     class="headerLink"
-     routerLink="/my"
-     routerLinkActive="active">
-    <span translate>Heroes</span>
-  </a>
+  <a routerLink="/" class="headerLink headerLinkHome" translate>Overwatch Heroes</a>
   <span class="flex-fill"></span>
+  <mat-select [placeholder]="'Language' | translate" [value]="currentLang">
+    <mat-option *ngFor="let locale of locales"
+                [value]="locale"
+                (click)="changeLocale(locale)">{{ 'locale.' + locale | translate }}</mat-option>
+  </mat-select>
 </mat-toolbar>
 
 

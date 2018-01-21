@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { IList } from '../../model/list';
 import { Hero } from '../../model/hero';
@@ -6,6 +6,7 @@ import { HeroesService } from '../../services/heroes';
 
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
+import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
 
 @Component({
   selector: 'cc-heroes-list',
@@ -23,7 +24,9 @@ export class HeroesListComponent implements OnInit, OnDestroy, AfterViewInit {
 
   private subscription: Subscription;
 
-  constructor(private route: ActivatedRoute, private heroesService: HeroesService) {
+  constructor(private route: ActivatedRoute,
+              private heroesService: HeroesService,
+              private dialog: MatDialog) {
   }
 
   ngOnInit() {
@@ -79,5 +82,38 @@ export class HeroesListComponent implements OnInit, OnDestroy, AfterViewInit {
     setTimeout(() => {
       this.checkVisible();
     }, 500);
+  }
+
+  openHeroSplashDialog(hero: Hero) {
+    this.dialog.open(HeroSplashDialogComponent, {
+      data: {
+        hero: hero
+      },
+      panelClass: 'full-screen-dialog'
+    });
+  }
+}
+
+@Component({
+  selector: 'cc-hero-splash-dialog',
+  templateUrl: 'hero-splash-dialog.html',
+})
+export class HeroSplashDialogComponent {
+  @HostBinding('class.full-screen-content') fullScreen = true;
+
+  hero: Hero;
+
+  backgroundImage = '';
+
+  constructor(public dialogRef: MatDialogRef<Hero>,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
+    this.hero = data.hero;
+
+    if (this.hero.attributes.image_splash) {
+      this.backgroundImage = `url(${this.hero.attributes.image_splash})`;
+    } else {
+      this.backgroundImage = '#563E7B';
+    }
+
   }
 }

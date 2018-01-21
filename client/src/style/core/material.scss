@@ -26,3 +26,29 @@ mat-input-container.input-block, mat-select.input-block {
 mat-spinner.centered {
   margin: 0 auto;
 }
+
+.full-screen-dialog {
+  max-width: none !important;
+  mat-dialog-container {
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    padding: 0;
+  }
+
+  .full-screen-content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+
+    mat-dialog-content, .mat-dialog-content {
+      flex: 1;
+      max-height: none;
+
+      margin: 0;
+    }
+  }
+  mat-dialog-actions:last-child, .mat-dialog-actions:last-child {
+    margin-bottom: 0;
+  }
+}

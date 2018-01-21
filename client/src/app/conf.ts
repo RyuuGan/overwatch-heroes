@@ -1,7 +1,7 @@
 class Conf {
   production = false;
   test = false;
-  locales: string[] = ['en'];
+  locales: string[] = ['en', 'ru'];
   readonly apiHost = process.env.apiHost;
   readonly host = process.env.host;
   readonly secured = process.env.secured;

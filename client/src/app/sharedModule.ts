@@ -10,6 +10,7 @@ import {
   MatListModule,
   MatSelectModule,
   MatTableModule,
+  MatToolbarModule,
   MatDialogModule,
   MatProgressSpinnerModule,
   MatTabsModule
@@ -26,6 +27,7 @@ import { CustomFormsModule } from 'ng2-validation';
     MatInputModule,
     MatButtonModule,
     MatTableModule,
+    MatToolbarModule,
     MatSelectModule,
     MatIconModule,
     MatListModule,

@@ -1,0 +1,28 @@
+mat-input-container .mat-input-description {
+  display: block;
+  position: absolute;
+  top: 100%;
+  top: calc(100% - 0.4rem);
+  height: 2rem;
+  line-height: 2.2rem;
+  color: map-get($mat-light-theme-foreground, hint-text);
+}
+
+mat-input-container.mat-input-invalid .mat-error + .mat-input-description {
+  display: none;
+}
+
+mat-input-container.input-block, mat-select.input-block {
+  width: 100%;
+}
+
+.input-block {
+  display: block;
+  mat-input-container {
+    width: 100%;
+  }
+}
+
+mat-spinner.centered {
+  margin: 0 auto;
+}

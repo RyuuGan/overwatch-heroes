@@ -16,40 +16,84 @@ const ChunkManifestPlugin = require('chunk-manifest-webpack2-plugin');
  * Get npm lifecycle event to identify the environment
  */
 const ENV = process.env.npm_lifecycle_event;
+const isTestWatch = ENV === 'test-watch';
+const isTest = ENV === 'test' || isTestWatch;
 const isProd = ENV === 'build';
 
 module.exports = function makeWebpackConfig() {
-
+  /**
+   * Config
+   * Reference: http://webpack.github.io/docs/configuration.html
+   * This is the object where all configuration gets set
+   */
   const config = {};
 
-  config.devtool = 'source-map';
+  /**
+   * Devtool
+   * Reference: http://webpack.github.io/docs/configuration.html#devtool
+   * Type of sourcemap to use per build type
+   */
+  if (isProd) {
+    config.devtool = 'source-map';
+  } else if (isTest) {
+    config.devtool = 'inline-source-map';
+  } else {
+    // Was eval-source-map
+    config.devtool = 'source-map';
+  }
 
-  config.entry = {
-    'polyfills': './client/src/polyfills.ts',
-    'vendor': './client/src/vendor.ts',
-    'app': './client/src/main.ts' // our angular app
-  };
+  if (!isTest) {
+    /**
+     * Entry
+     * Reference: http://webpack.github.io/docs/configuration.html#entry
+     */
+    config.entry = isTest ? {} : {
+      'polyfills': './client/src/polyfills.ts',
+      'vendor': './client/src/vendor.ts',
+      'app': './client/src/main.ts' // our angular app
+    };
+  }
 
-  config.output = {
+  /**
+   * Output
+   * Reference: http://webpack.github.io/docs/configuration.html#output
+   */
+  config.output = isTest ? {} : {
     path: root('client/dist'),
     publicPath: isProd ? '/' : '/',
     filename: isProd ? 'public/js/[name].[hash].js' : 'public/js/[name].js',
     chunkFilename: isProd ? '[id].[hash].chunk.js' : '[id].chunk.js'
   };
 
+  /**
+   * Resolve
+   * Reference: http://webpack.github.io/docs/configuration.html#resolve
+   */
   config.resolve = {
     // only discover files that have those extensions
     extensions: ['.ts', '.js', '.json', '.css', '.scss', '.html']
   };
 
+  let atlOptions = '';
+  if (isTest && !isTestWatch) {
+    // awesome-typescript-loader needs to output inlineSourceMap for code coverage to work with source maps.
+    atlOptions = 'inlineSourceMap=true&sourceMap=false';
+  }
+
+  /**
+   * Loaders
+   * Reference: http://webpack.github.io/docs/configuration.html#module-loaders
+   * List: http://webpack.github.io/docs/list-of-loaders.html
+   * This handles most of the magic responsible for converting modules
+   */
   config.module = {
     rules: [
       // Support for .ts files.
       {
         test: /\.ts$/,
-        loaders: ['awesome-typescript-loader', 'angular2-template-loader']
+        loaders: ['awesome-typescript-loader?' + atlOptions, 'angular2-template-loader']
           .concat(isProd ? [] : '@angularclass/hmr-loader'),
-        exclude: [/node_modules\/(?!(ng2-.+))/]
+        exclude: [isTest ? /\.(e2e)\.ts$/ : /\.(spec|e2e)\.ts$/, /node_modules\/(?!(ng2-.+))/]
       },
       // copy those assets to output
       {
@@ -60,24 +104,41 @@ module.exports = function makeWebpackConfig() {
       // Support for *.json files.
       { test: /\.json$/, loader: 'json-loader' },
 
+      // Support for CSS as raw text
+      // use 'null' loader in test mode (https://github.com/webpack/null-loader)
+      // all css in src/style will be bundled in an external css file
       {
         test: /\.css$/,
         exclude: root('./client/src', 'app'),
-        loader: ExtractTextPlugin.extract({
+        loader: isTest ? 'null-loader' : ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: ['css-loader', 'postcss-loader']
         })
       },
+      // all css required in src/app files will be merged in js files
+      {
+        test: /\.css$/,
+        include: root('./client/src', 'app'),
+        loader: 'raw-loader!postcss-loader'
+      },
 
+      // support for .scss files
+      // use 'null' loader in test mode (https://github.com/webpack/null-loader)
+      // all css in src/style will be bundled in an external css file
       {
         test: /\.(scss|sass)$/,
         exclude: root('./client/src', 'app'),
-        loader: ExtractTextPlugin.extract({
+        loader: isTest ? 'null-loader' : ExtractTextPlugin.extract({
           fallback: 'style-loader',
           use: ['css-loader', 'postcss-loader', 'sass-loader']
         })
       },
-
+      // all css required in src/app files will be merged in js files
+      {
+        test: /\.(scss|sass)$/,
+        exclude: root('./client/src', 'style'),
+        loader: 'raw-loader!postcss-loader!sass-loader'
+      },
 
       // support for .html as raw text
       // todo: change the loader to something that adds a hash to images
@@ -85,6 +146,31 @@ module.exports = function makeWebpackConfig() {
     ]
   };
 
+  if (isTest && !isTestWatch) {
+    // instrument only testing sources with Istanbul, covers ts files
+    config.module.rules.push({
+      test: /\.ts$/,
+      enforce: 'post',
+      include: path.resolve('src'),
+      loader: 'istanbul-instrumenter-loader',
+      exclude: [/\.spec\.ts$/, /\.e2e\.ts$/, /node_modules/]
+    });
+  }
+
+  if (!isTest || !isTestWatch) {
+    // tslint support
+    config.module.rules.push({
+      test: /\.ts$/,
+      enforce: 'pre',
+      loader: 'tslint-loader'
+    });
+  }
+
+  /**
+   * Plugins
+   * Reference: http://webpack.github.io/docs/configuration.html#plugins
+   * List: http://webpack.github.io/docs/list-of-plugins.html
+   */
   config.plugins = [
     new webpack.optimize.ModuleConcatenationPlugin(),
     // Define env variables to help with builds
@@ -93,8 +179,8 @@ module.exports = function makeWebpackConfig() {
       // Environment helpers
       'process.env': {
         ENV: JSON.stringify(ENV),
-        apiHost: isProd ? '"dojo-madness-challenge.herokuapp.com"' : '"127.0.0.1:3001"',
-        host: isProd ? '"dojo-madness-challenge.herokuapp.com"' : '"127.0.0.1:3000"',
+        apiHost: isProd ? '"angular-sketch.herokuapp.com"' : '"127.0.0.1:3001"',
+        host: isProd ? '"angular-sketch.herokuapp.com"' : '"127.0.0.1:3000"',
         secured: isProd ? true : false
       }
     }),
@@ -123,7 +209,7 @@ module.exports = function makeWebpackConfig() {
          * Transforms .scss files to .css
          */
         sassLoader: {
-          //includePaths: []
+          //includePaths: [path.resolve(__dirname, "node_modules/foundation-sites/scss")]
         },
         /**
          * PostCSS
@@ -136,40 +222,55 @@ module.exports = function makeWebpackConfig() {
           })
         ]
       }
-    }),
-    new webpack.optimize.CommonsChunkPlugin({
-      name: ['app', 'vendor', 'polyfills'],
-      minChunks: function (module) {
-        return module.context && module.context.indexOf('node_modules') !== -1;
-      }
-    }),
-    new HtmlWebpackPlugin({
-      template: root('./client/src/assets/index.html'),
-      chunksSortMode: 'dependency'
-    }),
-
-    new ExtractTextPlugin({
-      filename: 'public/css/[name].[hash].css',
-      disable: !isProd
     })
   ].concat(isProd ? [] : new webpack.HotModuleReplacementPlugin());
 
-  if (!isProd) {
+  if (!isTest && !isTestWatch) {
     config.plugins.push(
+      // Generate common chunks if necessary
+      // Reference: https://webpack.github.io/docs/code-splitting.html
+      // Reference: https://webpack.github.io/docs/list-of-plugins.html#commonschunkplugin
       new webpack.optimize.CommonsChunkPlugin({
-        name: 'manifest',
-        minChunks: Infinity
+        name: ['app', 'vendor', 'polyfills'],
+        minChunks: function (module) {
+          return module.context && module.context.indexOf('node_modules') !== -1;
+        }
+      })
+    );
+
+    if (!isProd) {
+      config.plugins.push(
+        new webpack.optimize.CommonsChunkPlugin({
+          name: 'manifest',
+          minChunks: Infinity
+        }),
+
+        // To speed up CommonsChunkPlugin
+        new ChunkManifestPlugin({
+          filename: 'manifest.json',
+          manifestVariable: 'webpackManifest',
+          inlineManifest: false
+        })
+      );
+    }
+
+    config.plugins.push(
+      // Inject script and link tags into html files
+      // Reference: https://github.com/ampedandwired/html-webpack-plugin
+      new HtmlWebpackPlugin({
+        template: root('./client/src/assets/index.html'),
+        chunksSortMode: 'dependency'
       }),
 
-      // To speed up CommonsChunkPlugin
-      new ChunkManifestPlugin({
-        filename: 'manifest.json',
-        manifestVariable: 'webpackManifest',
-        inlineManifest: false
+      // Extract css files
+      // Reference: https://github.com/webpack/extract-text-webpack-plugin
+      // Disabled when in test mode or not in build mode
+      new ExtractTextPlugin({
+        filename: 'public/css/[name].[hash].css',
+        disable: !isProd
       })
     );
   }
-
 
   // Add build specific plugins
   if (isProd) {
@@ -194,6 +295,11 @@ module.exports = function makeWebpackConfig() {
     );
   }
 
+  /**
+   * Dev server configuration
+   * Reference: http://webpack.github.io/docs/configuration.html#devserver
+   * Reference: http://webpack.github.io/docs/webpack-dev-server.html
+   */
   config.devServer = {
     contentBase: './client/src/assets',
     historyApiFallback: true,

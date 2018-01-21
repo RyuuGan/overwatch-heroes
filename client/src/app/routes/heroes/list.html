@@ -1,0 +1,21 @@
+<h1>Heroes</h1>
+
+<div *ngIf="!heroes.length">
+  <span>No heroes found.</span>
+</div>
+
+<div *ngIf="heroes.length" class="overwatch-heroes">
+
+  <div *ngFor="let hero of heroes">
+    <div class="overwatch-hero">
+      <div class="overwatch-hero__title">{{hero.attributes.name}}</div>
+      <div class="overwatch-hero__portrait">
+        <img [src]="hero.attributes.image_portrait"/>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="pagesLoaded < pages" class="overwatch-hero-loader" (click)="loadMore()" #loader>
+    <mat-spinner></mat-spinner>
+  </div>
+</div>

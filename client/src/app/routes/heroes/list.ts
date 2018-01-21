@@ -7,6 +7,10 @@ import { HeroesService } from '../../services/heroes';
 import { Observable } from 'rxjs/Observable';
 import { Subscription } from 'rxjs/Subscription';
 import { MAT_DIALOG_DATA, MatDialog, MatDialogRef } from '@angular/material';
+import { FormControl } from '@angular/forms';
+
+import {startWith} from 'rxjs/operators/startWith';
+import {map} from 'rxjs/operators/map';
 
 @Component({
   selector: 'cc-heroes-list',
@@ -22,11 +26,21 @@ export class HeroesListComponent implements OnInit, OnDestroy, AfterViewInit {
   perPage = 5;
   pages: number;
 
+  heroCtrl: FormControl;
+  filteredHeroes: Observable<Hero[]>;
+
   private subscription: Subscription;
 
   constructor(private route: ActivatedRoute,
               private heroesService: HeroesService,
               private dialog: MatDialog) {
+
+    this.heroCtrl = new FormControl();
+    this.filteredHeroes = this.heroCtrl.valueChanges
+      .pipe(
+        startWith(''),
+        map(state => state ? this.filterHeroes(state) : this.heroes.slice())
+      );
   }
 
   ngOnInit() {
@@ -79,9 +93,18 @@ export class HeroesListComponent implements OnInit, OnDestroy, AfterViewInit {
     this.pages = heroes.pages;
     this.perPage = heroes.limit;
     this.pagesLoaded = heroes.page;
+
+    this.heroCtrl.setValue(this.heroCtrl.value, {
+      emitEvent: true
+    });
     setTimeout(() => {
       this.checkVisible();
     }, 500);
+  }
+
+  filterHeroes(name: string) {
+    return this.heroes.filter(h =>
+      h.attributes.name.toLowerCase().indexOf(name.toLowerCase()) !== -1);
   }
 
   openHeroSplashDialog(hero: Hero) {

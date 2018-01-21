@@ -1,4 +1,12 @@
-<h1 translate>Heroes</h1>
+<div fxLayout="row" fxLayout.xs="column">
+  <h1 translate fxFlex="66%">Heroes</h1>
+  <div fxFlex="33%">
+    <mat-input-container class="input-block">
+      <input matInput [placeholder]="'Search hero' | translate" [formControl]="heroCtrl"/>
+    </mat-input-container>
+  </div>
+</div>
+
 
 <div *ngIf="!heroes.length">
   <span translate>No heroes found.</span>
@@ -6,7 +14,7 @@
 
 <div *ngIf="heroes.length" class="overwatch-heroes">
 
-  <div *ngFor="let hero of heroes">
+  <div *ngFor="let hero of filteredHeroes | async">
     <div class="overwatch-hero" (click)="openHeroSplashDialog(hero)">
       <div class="overwatch-hero__title">{{hero.attributes.name}}</div>
       <div class="overwatch-hero__portrait">

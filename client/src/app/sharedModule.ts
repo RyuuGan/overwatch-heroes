@@ -1,5 +1,5 @@
 import { NgModule } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { MomentModule } from 'angular2-moment';
 import {
@@ -36,6 +36,7 @@ import { CustomFormsModule } from 'ng2-validation';
     HeaderComponentModule,
     FlexLayoutModule,
     FormsModule,
+    ReactiveFormsModule,
     CommonModule,
     MomentModule,
     TranslateModule,

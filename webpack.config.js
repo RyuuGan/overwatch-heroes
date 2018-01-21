@@ -179,8 +179,8 @@ module.exports = function makeWebpackConfig() {
       // Environment helpers
       'process.env': {
         ENV: JSON.stringify(ENV),
-        apiHost: isProd ? '"angular-sketch.herokuapp.com"' : '"127.0.0.1:3001"',
-        host: isProd ? '"angular-sketch.herokuapp.com"' : '"127.0.0.1:3000"',
+        apiHost: isProd ? '"dojo-madness-challenge.herokuapp.com"' : '"127.0.0.1:3001"',
+        host: isProd ? '"dojo-madness-challenge.herokuapp.com"' : '"127.0.0.1:3000"',
         secured: isProd ? true : false
       }
     }),

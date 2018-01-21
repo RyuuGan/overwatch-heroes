@@ -55,9 +55,7 @@ export class HeroesListComponent implements OnInit, OnDestroy, AfterViewInit {
     }
     let pageBottom = window.pageYOffset + window.innerHeight;
     let elemPositioning = this.loader.nativeElement.getBoundingClientRect();
-    console.log(elemPositioning.top, pageBottom);
     if (elemPositioning.top < pageBottom) {
-      console.log('Load more');
       this.loadMore();
     }
   }
